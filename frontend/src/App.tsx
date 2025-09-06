@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Messages } from "./components/Messages";
 
 function App() {
@@ -9,7 +10,9 @@ function App() {
         marginTop: "6rem",
       }}
     >
-      <Messages />
+      <Suspense fallback={<div>Loading messages...</div>}>
+        <Messages />
+      </Suspense>
     </div>
   );
 }

@@ -1,4 +1,12 @@
-import { useEffect, useState } from "react";
+import { use, useState } from "react";
+
+const fetchMessages = async (): Promise<Message[]> => {
+  const response = await fetch("http://localhost:3000/messages");
+  if (!response.ok) {
+    throw new Error("Failed to fetch messages");
+  }
+  return response.json();
+};
 
 type Message = {
   id: string;
@@ -6,22 +14,12 @@ type Message = {
   answer: string;
 };
 
-export const Messages = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+const messagesPromise = fetchMessages();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/messages");
-        const data = await response.json();
-        setMessages(data);
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
-    fetchData();
-  }, []);
+export const Messages = () => {
+
+  const messages = use(messagesPromise);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleCardClick = (msg: Message, index: number) => {
     console.log(`Card ${index} clicked:`, msg);
