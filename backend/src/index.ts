@@ -7,6 +7,7 @@ const port = 3000;
 
 app.use(cors());
 app.use(logger);
+app.use(express.json());
 
 app.get("/hello", (_, res) => {
   res.send("Hello, world!");
@@ -22,6 +23,15 @@ app.get("/messages{/:id}", (req, res) => {
   } else {
     res.status(404).send("Message not found");
   }
+});
+
+app.post("/conversation", (req, res) => {
+  const { message } = req.body;
+  if (!message) {
+    return res.status(400).send("Message is required");
+  }
+  // TODO: Save the message to the database and get a response from OpenAI
+  res.json({ message, response: "This is a fake response" });
 });
 
 app.listen(port, () => {
