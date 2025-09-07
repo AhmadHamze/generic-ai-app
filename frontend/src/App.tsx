@@ -1,18 +1,20 @@
-import { Suspense } from "react";
-import { Messages } from "./components/Messages";
+import { Conversation } from "./components/Conversation";
 
 function App() {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        marginTop: "6rem",
-      }}
-    >
-      <Suspense fallback={<div>Loading messages...</div>}>
-        <Messages />
-      </Suspense>
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "6rem",
+        }}
+      >
+        {/* <Suspense fallback={<div>Loading messages...</div>}>
+          <Messages />
+        </Suspense> */}
+      </div>
+      <Conversation />
     </div>
   );
 }
