@@ -31,13 +31,36 @@ app.post("/conversation", async (req, res) => {
   if (!message) {
     return res.status(400).send("Message is required");
   }
-  const completion = await gpt4oMiniClient.chat.completions.create({
-    model: "openai/gpt-4o-mini",
-    messages: [{ role: "user", content: message }],
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Cache-Control",
   });
-  return res
-    .status(201)
-    .json({ llmResponse: completion.choices[0].message.content });
+
+  try {
+    const stream = await gpt4oMiniClient.chat.completions.create({
+      model: "openai/gpt-4o-mini",
+      messages: [{ role: "user", content: message }],
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
+  } catch (error) {
+    console.error("Streaming error:", error);
+    res.write(`data: ${JSON.stringify({ error: "Stream error occurred" })}\n\n`);
+    res.end();
+  }
 });
 
 app.listen(port, () => {
