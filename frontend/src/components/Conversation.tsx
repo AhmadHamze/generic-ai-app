@@ -1,6 +1,9 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
-const sendMessage = async (message: string): Promise<void> => {
+const sendMessage = async (
+  message: string
+): Promise<{ llmResponse: string }> => {
   const response = await fetch("http://localhost:3000/conversation", {
     method: "POST",
     headers: {
@@ -11,12 +14,12 @@ const sendMessage = async (message: string): Promise<void> => {
   if (!response.ok) {
     throw new Error("Failed to send message");
   }
-  const data = await response.json();
-  console.log("Response from server:", data);
+  return response.json();
 };
 
 export const Conversation = () => {
   const [message, setMessage] = useState("");
+  const [llmResponse, setLlmResponse] = useState("");
 
   return (
     <div
@@ -37,12 +40,16 @@ export const Conversation = () => {
       />
       <button
         onClick={async () => {
-          await sendMessage(message);
-          setMessage("");
+          const { llmResponse } = await sendMessage(message);
+          setLlmResponse(llmResponse);
         }}
       >
         Send
       </button>
+      <div>
+        <h3>Response:</h3>
+        <ReactMarkdown>{llmResponse}</ReactMarkdown>
+      </div>
     </div>
   );
 };
