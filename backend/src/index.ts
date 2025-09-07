@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { logger } from "./middlewares/logging";
+import { gpt4oMiniClient } from "./llm_clients";
 
 const app = express();
 const port = 3000;
@@ -25,13 +26,18 @@ app.get("/messages{/:id}", (req, res) => {
   }
 });
 
-app.post("/conversation", (req, res) => {
+app.post("/conversation", async (req, res) => {
   const { message } = req.body;
   if (!message) {
     return res.status(400).send("Message is required");
   }
-  // TODO: Save the message to the database and get a response from OpenAI
-  res.json({ message, response: "This is a fake response" });
+  const completion = await gpt4oMiniClient.chat.completions.create({
+    model: "openai/gpt-4o-mini",
+    messages: [{ role: "user", content: message }],
+  });
+  return res
+    .status(201)
+    .json({ llmResponse: completion.choices[0].message.content });
 });
 
 app.listen(port, () => {
